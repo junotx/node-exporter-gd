@@ -1,0 +1,37 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: process-exporter-rules
+  namespace: kube-monitoring-system
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: process-exporter-rules
+      rules:
+        - alert: NamedprocessGroupExistsZombieThreads
+          annotations:
+            message: The {{ $labels.groupname }} process group on {{ $labels.node }} node has {{ $value }} zombie threads.
+            summary: The process group has zombie threads.
+          expr: sum by(cluster,node,groupname,instance,job) (namedprocess_namegroup_states{state="Zombie",job="process-exporter"}) > 0
+          for: 10m
+          labels:
+            severity: error
+        - alert: ProcessExporterDown
+          annotations:
+            message: Process exporter target {{ $labels.instance }} is down.
+            summary: Target is unreachable.
+          expr: up{job="process-exporter"} == 0
+          for: 10m
+          labels:
+            severity: error
+        - alert: ProcessScrapeErrors
+          annotations:
+            message: Process exporter {{ $labels.instance }} has encountered {{ $value }} scrape errors in the last 5 minutes.
+            summary: Process exporter has failed to scrape metrics.
+          expr: increase(namedprocess_scrape_errors{job="process-exporter"}[5m]) > 0
+          for: 15m
+          labels:
+            severity: error

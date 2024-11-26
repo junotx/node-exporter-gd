@@ -1,0 +1,44 @@
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: calico-exporter-rules
+  namespace: kube-monitoring-system
+  labels:
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: calico-exporter-rules
+      rules:
+        - alert: CalicoBGPBirdDown
+          annotations:
+            description: Calico BGP bird {{ $labels.instance }} ({{ $labels.router_id }}) is down.
+            summary: Calico BGP bird is down.
+          expr: calico_bgp_bird_info{up="false"} == 1
+          for: 5m
+          labels:
+            severity: warning
+        - alert: CalicoBirdLastRebootTimestampChanged
+          annotations:
+            description: Calico BGP bird {{ $labels.instance }} ({{ $labels.router_id }}) last reboot timestamp has changed.
+            summary: Calico BGP bird last reboot timestamp has changed.
+          expr: delta(calico_bgp_bird_last_reboot_timestamp_seconds[5m]) > 5
+          labels:
+            severity: warning
+        - alert: CalicoBGPPeerStateAbnormal
+          annotations:
+            description: Calico BGP peer {{ $labels.name }} ({{ $labels.ip }}) is not in established state.
+            summary: Calico BGP peer connection state is abnormal.
+          expr: calico_bgp_peer_info{conn_state!="Established"} == 1
+          for: 5m
+          labels:
+            severity: warning
+        - alert: CalicoIPPoolUsageHigh
+          annotations:
+            description: Calico IP pool {{ $labels.name }} ({{ $labels.cidr }}) has {{ $value | humanizePercentage }} of IPs allocated.
+            summary: Calico IP pool usage is high.
+          expr: calico_ippool_allocated_ips / calico_ippool_capacity >= 0.9
+          for: 5m
+          labels:
+            severity: warning

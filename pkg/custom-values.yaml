@@ -1,0 +1,62 @@
+image:
+  registry: quay.io
+  repository: prometheus/node-exporter
+  tag: "v1.8.1"
+
+resources:
+  limits:
+    cpu: "2"
+    memory: 500Mi
+  requests:
+    cpu: 102m
+    memory: 180Mi
+
+kubeRBACProxy:
+  enabled: true
+  image:
+    registry: quay.io
+    repository: brancz/kube-rbac-proxy
+    tag: v0.18.0
+  resources:
+    limits:
+      cpu: "1"
+      memory: 100Mi
+    requests:
+      cpu: 20m
+      memory: 20Mi
+
+nginx:
+  resources:
+    limits:
+      cpu: 200m
+      memory: 50Mi
+    requests:
+      cpu: 100m
+      memory: 30Mi
+
+prometheus:
+  monitor:
+    enabled: true
+    scheme: https
+    bearerTokenFile: "/var/run/secrets/kubernetes.io/serviceaccount/token"
+    tlsConfig:
+      insecureSkipVerify: true
+
+rbac:
+  pspEnabled: false
+
+ProcessExporter:
+  enabled: true
+  image:
+    repository: kubesphere/process-exporter
+    tag: "0.5.0"
+
+CalicoExporter:
+  enabled: true
+  image:
+    repository: kubesphere/calico-exporter
+    tag: v0.3.0
+  kubeRbacProxy:
+    image:
+      repository: brancz/kube-rbac-proxy
+      tag: v0.18.0

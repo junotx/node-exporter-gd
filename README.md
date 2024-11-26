@@ -1,6 +1,6 @@
 # prometheus-node-exporter
 
-![Version: 4.21.8](https://img.shields.io/badge/Version-4.21.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.6.0](https://img.shields.io/badge/AppVersion-1.6.0-informational?style=flat-square)
+![Version: 4.37.2](https://img.shields.io/badge/Version-4.37.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 1.8.1](https://img.shields.io/badge/AppVersion-1.8.1-informational?style=flat-square)
 
 A Helm chart for prometheus node-exporter
 
@@ -16,17 +16,20 @@ A Helm chart for prometheus node-exporter
 Ensure Helm is initialized in your Kubernetes cluster.
 For more details on initializing Helm, [read the Helm docs](https://helm.sh/docs/)
 
-To install the chart with the release name `prometheus-node-exporter` into the namespace `kube-monitoring-sytem`:
+To install or upgrade the chart with the release name `prometheus-node-exporter` into the namespace `kube-sytem`:
 
 ```bash
-helm install prometheus-node-exporter ./pkg/prometheus-node-exporter-4.21.8.tgz --namespace kube-monitoring-system
+helm upgrade --install node-exporter ./pkg/prometheus-node-exporter-4.37.2.tgz -f ./pkg/custom-values.yaml --namespace kube-system --create-namespace
 ```
 
-To enable `calico-exporter` and `process-exporter`, you can set the following values:
-
+To disable `calico-exporter` and `process-exporter`, you can set the following values:
 ```bash
-helm install prometheus-node-exporter ./prometheus-node-exporter-4.21.8.tgz --namespace kube-monitoring-system --set CalicoExporter.enabled=true --set ProcessExporter.enabled=true
+helm upgrade --install node-exporter ./pkg/prometheus-node-exporter-4.37.2.tgz -f ./pkg/custom-values.yaml --set CalicoExporter.enabled=false --set ProcessExporter.enabled=false --namespace kube-system --create-namespace
 ```
+
+> If need to custom other configurations, you can refer to the [Values](#values) section, add/update them into the file `custom-values.yaml`, or add them through `--set` flag.
+
+then execute the upper helm cmd.
 
 ## Verify installation
 
